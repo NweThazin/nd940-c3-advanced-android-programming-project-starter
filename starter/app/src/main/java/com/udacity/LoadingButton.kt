@@ -22,22 +22,22 @@ class LoadingButton @JvmOverloads constructor(
     private var widthSize = 0
     private var heightSize = 0
     private var buttonText: String = context.getString(R.string.label_download)
+    private var buttonColor: Int = 0
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         textAlign = Paint.Align.CENTER
         textSize = 50f
-        color = context.getColor(R.color.white)
         typeface = Typeface.create("", Typeface.BOLD)
     }
 
     private val progressBarPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = context.getColor(R.color.colorPrimaryDark)
     }
     private val circleProgressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         color = context.getColor(R.color.colorAccent)
     }
+
 
     private var valueAnimator = ValueAnimator()
     private var animateValue: Float = 0.0f
@@ -78,13 +78,18 @@ class LoadingButton @JvmOverloads constructor(
         buttonState = ButtonState.Loading
     }
 
-    fun disableLoading() {
+    private fun disableLoading() {
         buttonState = ButtonState.Completed
     }
 
     init {
         isClickable = true
-        setBackgroundColor(context.getColor(R.color.colorPrimary))
+        context.withStyledAttributes(attrs, R.styleable.LoadingButton) {
+            paint.color = getColor(R.styleable.LoadingButton_buttonTextColor, 0)
+            buttonColor = getColor(R.styleable.LoadingButton_buttonColor, 0)
+            progressBarPaint.color = getColor(R.styleable.LoadingButton_buttonLoadingColor, 0)
+        }
+        setBackgroundColor(buttonColor)
     }
 
 
@@ -103,12 +108,12 @@ class LoadingButton @JvmOverloads constructor(
                 heightSize.toFloat(),
                 progressBarPaint
             )
-            val startArcX = xPos / 2f + width / 2f
+            val startArcX = (xPos / 2f + width / 2f) - 30
             val startArcY = yPos / 2 + 15
             rectF.set(startArcX, startArcY, startArcX + 50, startArcY + 50)
             canvas?.drawArc(rectF, 0f, animateValue * 360f, true, circleProgressPaint)
         } else {
-            canvas?.drawColor(context.getColor(R.color.colorPrimary))
+            canvas?.drawColor(buttonColor)
         }
 
         // draw text
